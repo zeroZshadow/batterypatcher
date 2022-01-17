@@ -39,7 +39,7 @@ comptime {
                     \\
                     \\// DATA
                     \\WRAMExecutionBlock:
-                    \\.word 0xDEADBEEF
+                    \\.word 0x0203fc10              //Last 1007 bytes of WRAM 256KBytes
                     \\BlockStart:
                     \\.word 0xDEADBEEF
                     \\BlockEnd:

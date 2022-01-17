@@ -75,7 +75,8 @@ comptime {
                     \\ldrh  r1, [r0, #0x0]
                     \\// Jump to WRAM Wrapper function
                     \\// Original code does an immediate offset jump of 174 to JUST after this patch, where IntoWRAM_DetectFlash resides. Dont want to hardcode this for now
-                    \\ldr   pc, #NextMethod // Chat PC to next method as a jump
+                    \\ldr   r1, #NextMethod
+                    \\bx    r1
                     \\
                     \\// SRAMToROMExit
                     \\
@@ -123,9 +124,9 @@ comptime {
                     \\SoundCNTX:
                     \\.word     0x04000084
                     \\PatchExitThunk:
-                    \\.word     0xDEADBEEF
+                    \\.word     0xDEADBEEF  // Add 1 for Thumb
                     \\NextMethod:
-                    \\.word     0xDEADBEEF
+                    \\.word     0xDEADBEEF  // Add 1 for Thumb
                 );
 
                 unreachable;
