@@ -21,10 +21,17 @@ pub fn build(b: *std.build.Builder) !void {
     const sramtoromPatch = addPatch(b, "sramtorom", "src/patches/sramtorom.zig");
     const intowramPatch = addPatch(b, "intowram", "src/patches/intowram.zig");
 
+    const detect1Patch = addPatch(b, "intowram", "src/patches/detectflashchip1.zig");
+    const detect2Patch = addPatch(b, "intowram", "src/patches/detectflashchip2.zig");
+    const detect3Patch = addPatch(b, "intowram", "src/patches/detectflashchip3.zig");
+
     const patch_options = b.addOptions();
     patch_options.addOptionFileSource("copyromtosram", copyromtosramPatch);
     patch_options.addOptionFileSource("sramtoromPatch", sramtoromPatch);
     patch_options.addOptionFileSource("intowram", intowramPatch);
+    patch_options.addOptionFileSource("detect1", detect1Patch);
+    patch_options.addOptionFileSource("detect2", detect2Patch);
+    patch_options.addOptionFileSource("detect3", detect3Patch);
 
     // Tool
     const exe = b.addExecutable("batterypatcher", "src/main.zig");
