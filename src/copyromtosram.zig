@@ -9,9 +9,9 @@ const PatchType = patching.PatchWriter(dataOffsets, patches.copyromtosram);
 pub const writePatch = PatchType.writePatch;
 
 const dataOffsets = .{
-    .originalEntry = 4,
-    .saveSize = 8,
     .savelocation = 12,
+    .saveSize = 8,
+    .originalEntry = 4,
 };
 
 comptime {

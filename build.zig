@@ -17,10 +17,14 @@ pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
 
     // Patches
-    const patchFilesource = addPatch(b, "copyromtosram", "src/copyromtosram.zig");
+    const copyromtosramPatch = addPatch(b, "copyromtosram", "src/copyromtosram.zig");
+    const sramtoromPatch = addPatch(b, "sramtorom", "src/sramtorom.zig");
+    const intowramPatch = addPatch(b, "intowram", "src/intowram.zig");
 
     const patch_options = b.addOptions();
-    patch_options.addOptionFileSource("copyromtosram", patchFilesource);
+    patch_options.addOptionFileSource("copyromtosram", copyromtosramPatch);
+    patch_options.addOptionFileSource("sramtoromPatch", sramtoromPatch);
+    patch_options.addOptionFileSource("intowram", intowramPatch);
 
     // Tool
     const exe = b.addExecutable("batterypatcher", "src/main.zig");
