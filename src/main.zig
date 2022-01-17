@@ -1,5 +1,5 @@
 const std = @import("std");
-const copyromtosram = @import("copyromtosram.zig");
+const copyromtosram = @import("patches/copyromtosram.zig");
 
 pub fn main() anyerror!void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};

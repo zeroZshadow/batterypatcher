@@ -1,6 +1,5 @@
 const std = @import("std");
 const builtin = @import("builtin");
-const gba = @import("gba.zig");
 const patching = @import("patching.zig");
 const patches = @import("patches");
 

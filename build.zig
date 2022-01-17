@@ -17,9 +17,9 @@ pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
 
     // Patches
-    const copyromtosramPatch = addPatch(b, "copyromtosram", "src/copyromtosram.zig");
-    const sramtoromPatch = addPatch(b, "sramtorom", "src/sramtorom.zig");
-    const intowramPatch = addPatch(b, "intowram", "src/intowram.zig");
+    const copyromtosramPatch = addPatch(b, "copyromtosram", "src/patches/copyromtosram.zig");
+    const sramtoromPatch = addPatch(b, "sramtorom", "src/patches/sramtorom.zig");
+    const intowramPatch = addPatch(b, "intowram", "src/patches/intowram.zig");
 
     const patch_options = b.addOptions();
     patch_options.addOptionFileSource("copyromtosram", copyromtosramPatch);
