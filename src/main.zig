@@ -23,8 +23,11 @@ pub fn main() anyerror!void {
     const baseAddress = 0x08000000;
     const codeOffset = 0x08800000 - baseAddress;
 
+    // Patch game entry point to jump to patch location
+    const originalEntryOffset = patchEntryJump(codeOffset, romBuffer);
+
     // Write SRAM patch
-    const patchValues = .{ .originalEntry = 0x080000c0, .saveSize = 65536, .savelocation = 0x08840000 };
+    const patchValues = .{ .originalEntry = baseAddress + originalEntryOffset, .saveSize = 65536, .savelocation = 0x08840000 };
     copyromtosram.writePatch(patchValues, romBuffer, codeOffset);
 
     // Write Game entry/exit patch
@@ -34,4 +37,15 @@ pub fn main() anyerror!void {
     defer romOutputFile.close();
 
     try romOutputFile.writeAll(romBuffer);
+}
+
+fn patchEntryJump(jumpOffset: u32, rom: []u8) u32 {
+    // Read and calculate original jump offset
+    const originalOffset = (std.mem.readIntSlice(u32, rom[0..4], .Little) & 0x00FFFFFF) * 4 + 8;
+
+    // Calculate and write new offset jump for patch
+    const op = (((jumpOffset - 8) / 4) & 0x00FFFFFF) | 0xEA000000;
+    std.mem.writeIntSlice(u32, rom[0..4], op, .Little);
+
+    return originalOffset;
 }

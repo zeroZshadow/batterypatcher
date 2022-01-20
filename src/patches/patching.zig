@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn PatchParameters(comptime baseType: type) type {
+fn PatchParameters(comptime baseType: type) type {
     // zig fmt: off
     return typeblk: {
         var baseFields = std.meta.fields(baseType);
@@ -29,7 +29,7 @@ pub fn PatchParameters(comptime baseType: type) type {
     // zig fmt: on
 }
 
-pub fn PatchWriter(comptime dataOffsets: anytype, comptime patch: anytype) type {
+pub fn PatchWriter(comptime dataOffsets: anytype, comptime patch: []const u8) type {
     const bytes = @embedFile(patch);
     const parametersType = PatchParameters(@TypeOf(dataOffsets));
 
