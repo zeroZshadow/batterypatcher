@@ -1,5 +1,5 @@
 MEMORY {
-    rom	: ORIGIN = 0x08000000, LENGTH = 32M
+    rom	: ORIGIN = 0x00000000, LENGTH = 32M
 }
 
 ENTRY(__text_start)
@@ -16,7 +16,12 @@ SECTIONS
     .text :
     {
         KEEP(*(.text))
-        . ALIGN(2);
+        . ALIGN(4);
+    } >rom
+
+    .rodata : {
+        KEEP(*(.rodata*))
+        . = ALIGN(4);
     } >rom
 
     /DISCARD/ : {

@@ -5,8 +5,9 @@ fn addPatch(b: *std.build.Builder, name: []const u8, path: []const u8) std.build
     const bin = b.addExecutable(name, path);
     bin.setTarget(gba.Target);
     bin.setBuildMode(.ReleaseSmall);
+    bin.emit_asm = .emit;
+    bin.force_pic = true;
     bin.setLinkerScriptPath(std.build.FileSource{ .path = "patches.ld" });
-    bin.bundle_compiler_rt = false;
     return bin.installRaw(b.fmt("{s}.bin", .{name}), .{
         .dest_dir = std.build.InstallDir{ .custom = "patches" },
     }).getOutputSource();
@@ -21,9 +22,13 @@ pub fn build(b: *std.build.Builder) !void {
     const sramtoromPatch = addPatch(b, "sramtorom", "src/patches/sramtorom.zig");
     const intowramPatch = addPatch(b, "intowram", "src/patches/intowram.zig");
 
-    const detect1Patch = addPatch(b, "intowram", "src/patches/detectflashchip1.zig");
-    const detect2Patch = addPatch(b, "intowram", "src/patches/detectflashchip2.zig");
-    const detect3Patch = addPatch(b, "intowram", "src/patches/detectflashchip3.zig");
+    const detect1Patch = addPatch(b, "detectflashchip1", "src/patches/detectflashchip1.zig");
+    const detect2Patch = addPatch(b, "detectflashchip2", "src/patches/detectflashchip2.zig");
+    const detect3Patch = addPatch(b, "detectflashchip3", "src/patches/detectflashchip3.zig");
+
+    const typeAPatch = addPatch(b, "type_a", "src/patches/type_a.zig");
+
+    //const testpatchPatch = addPatch(b, "testpatch", "src/patches/testpatch.zig");
 
     const patch_options = b.addOptions();
     patch_options.addOptionFileSource("copyromtosram", copyromtosramPatch);
@@ -32,6 +37,8 @@ pub fn build(b: *std.build.Builder) !void {
     patch_options.addOptionFileSource("detect1", detect1Patch);
     patch_options.addOptionFileSource("detect2", detect2Patch);
     patch_options.addOptionFileSource("detect3", detect3Patch);
+    patch_options.addOptionFileSource("type_a", typeAPatch);
+    //patch_options.addOptionFileSource("testpatch", testpatchPatch);
 
     // Tool
     const exe = b.addExecutable("batterypatcher", "src/main.zig");
