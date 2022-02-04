@@ -9,8 +9,10 @@ pub const writePatch = PatchType.writePatch;
 
 const dataOffsets = .{};
 
+// Intel chips, using write buffer
+
 comptime {
-    if (builtin.cpu.arch == .thumb) {
+    if (builtin.cpu.arch == .arm) {
         const thunk = struct {
             fn patch() callconv(.Naked) noreturn {
                 asm volatile (
@@ -55,10 +57,11 @@ comptime {
                     \\mov        r0, #0xEA
                     \\strh       r0, [r2, #0x0] // Command: Write to Buffer
                     \\nop
-                    \\ldr        r0, #TypeAFlashCommand
+                    \\mov        r0, 512        // Amount of words to write (1024 bytes)
+                    \\sub        r0, r0, 1
                     \\strh       r0, [r2, #0x0] // Buffer word count -1 (511)
                     \\nop
-                    \\mov        r1, #0x200     // r1 = 512
+                    \\mov        r1, 512        // r1 = 512
                     \\
                     \\CopySector:
                     \\ldrb       r0, [r5, #0x0]         // Read low byte from SRAM
@@ -94,7 +97,7 @@ comptime {
                     \\
                     \\// Function
                     \\FUN_WRAM_TypeA_EraseSector:
-                    \\stmdb      sp!, {r2 lr}
+                    \\stmdb      sp!, {r2, lr}
                     \\mov        r0, #0xff
                     \\strh       r0, [r2, #0x0] // Command: Read Array
                     \\nop
@@ -113,7 +116,7 @@ comptime {
                     \\ldrb       r0, [r2, #0x0] // Read codes
                     \\and        r0, r0, #0x3   // If (codes & 3) == 0, Block is unlocked
                     \\bne        WaitForUnlock
-                    \\subs       r2, r2, #0x2   // Undo SRAM Offset TODO Use offset in Read Codes?
+                    \\sub        r2, r2, #0x2   // Undo SRAM Offset TODO Use offset in Read Codes?
                     \\nop
                     \\mov        r0, #0xff
                     \\strh       r0, [r2, #0x0] // Command: Read Array
@@ -133,13 +136,11 @@ comptime {
                     \\nop
                     \\mov        r0, #0xff
                     \\strh       r0, [r2, #0x0] // Command: Read Array
-                    \\ldmia      sp!, {r2 lr}
+                    \\ldmia      sp!, {r2, lr}
                     \\mov        pc, lr
                     \\
                     \\PTR_FUN_RestoreInterruptAndResume:
                     \\.word      0xDEADBEEF
-                    \\TypeAFlashCommand:
-                    \\.word      0x1FFh     // TODO Remove
                     \\FUN_WRAM_TypeAEnd:
                     \\nop
                 );

@@ -18,7 +18,7 @@ const dataOffsets = .{
 };
 
 comptime {
-    if (builtin.cpu.arch == .thumb) {
+    if (builtin.cpu.arch == .arm) {
         const thunk = struct {
             fn patch() callconv(.Naked) noreturn {
                 asm volatile (
