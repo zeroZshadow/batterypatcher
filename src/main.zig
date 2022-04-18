@@ -7,7 +7,7 @@ pub fn main() anyerror!void {
     defer _ = gpa.deinit();
 
     // Load ROM into memory / Double the size
-    const romInputFile = try std.fs.cwd().openFile("./testrom.gba", .{ .read = true });
+    const romInputFile = try std.fs.cwd().openFile("./testrom.gba", .{});
     defer romInputFile.close();
 
     const romStat = try romInputFile.stat();

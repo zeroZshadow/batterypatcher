@@ -3,7 +3,7 @@ const builtin = @import("builtin");
 const patching = @import("patching.zig");
 const patches = @import("patches");
 
-const PatchType = patching.PatchWriter(dataOffsets, patches.type_a);
+const PatchType = patching.PatchWriter(dataOffsets, patches.type_intel_buffer);
 
 pub const writePatch = PatchType.writePatch;
 
@@ -19,21 +19,20 @@ comptime {
                     \\.arm
                     \\.cpu arm7tdmi
                     \\//Entry
-                    \\FUN_WRAM_TypeA:
                     \\mov        r2, #0x84
                     \\mov        r2, r2, lsl #0x10
                     \\mov        r0, #0x8000000
                     \\orr        r2, r2, r0         // r2 = 0x08840000 -> Save location in ROM
-                    \\bl         FUN_WRAM_TypeA_EraseSector
+                    \\bl         FUN_EraseSector
                     \\mov        r5, #0xe000000     // r5 = SRAM address
                     \\mov        r3, #0x10
                     \\mov        r3, r3, lsl #0xc   // r3 = 65536 -> size of save // TODO REPLACE WITH LOAD
-                    \\bl         FUN_WRAM_TypeA_CopySRAMToROM
+                    \\bl         FUN_CopySRAMToROM
                     \\ldr        r0, #PTR_FUN_RestoreInterruptAndResume // Originally this stored the ptr + 1, and subtracted the 1 after load... very weird
                     \\bx         r0
                     \\
                     \\// Function
-                    \\FUN_WRAM_TypeA_CopySRAMToROM:
+                    \\FUN_CopySRAMToROM:
                     \\stmdb      sp!, {lr}
                     \\
                     \\CopyNextSector:
@@ -96,7 +95,7 @@ comptime {
                     \\mov        pc, lr         // Return
                     \\
                     \\// Function
-                    \\FUN_WRAM_TypeA_EraseSector:
+                    \\FUN_EraseSector:
                     \\stmdb      sp!, {r2, lr}
                     \\mov        r0, #0xff
                     \\strh       r0, [r2, #0x0] // Command: Read Array
@@ -141,7 +140,6 @@ comptime {
                     \\
                     \\PTR_FUN_RestoreInterruptAndResume:
                     \\.word      0xDEADBEEF
-                    \\FUN_WRAM_TypeAEnd:
                     \\nop
                 );
 
@@ -149,6 +147,6 @@ comptime {
             }
         };
 
-        @export(thunk.patch, .{ .name = "type_a", .section = ".text" });
+        @export(thunk.patch, .{ .name = "type_intel_buffer", .section = ".text" });
     }
 }

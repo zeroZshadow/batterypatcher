@@ -5,7 +5,6 @@ fn addPatch(b: *std.build.Builder, name: []const u8, path: []const u8) std.build
     const bin = b.addExecutable(name, path);
     bin.setTarget(gba.Target);
     bin.setBuildMode(.ReleaseSmall);
-    bin.emit_asm = .emit;
     bin.force_pic = true;
     bin.setLinkerScriptPath(std.build.FileSource{ .path = "patches.ld" });
     return bin.installRaw(b.fmt("{s}.bin", .{name}), .{
@@ -26,9 +25,9 @@ pub fn build(b: *std.build.Builder) !void {
     const detect2Patch = addPatch(b, "detectflashchip2", "src/patches/detectflashchip2.zig");
     const detect3Patch = addPatch(b, "detectflashchip3", "src/patches/detectflashchip3.zig");
 
-    const typeAPatch = addPatch(b, "type_a", "src/patches/type_a.zig");
+    const typeIntelBufferPatch = addPatch(b, "type_intel_buffer", "src/patches/type_intel_buffer.zig");
 
-    //const testpatchPatch = addPatch(b, "testpatch", "src/patches/testpatch.zig");
+    const testpatchPatch = addPatch(b, "testpatch", "src/patches/testpatch.zig");
 
     const patch_options = b.addOptions();
     patch_options.addOptionFileSource("copyromtosram", copyromtosramPatch);
@@ -37,8 +36,8 @@ pub fn build(b: *std.build.Builder) !void {
     patch_options.addOptionFileSource("detect1", detect1Patch);
     patch_options.addOptionFileSource("detect2", detect2Patch);
     patch_options.addOptionFileSource("detect3", detect3Patch);
-    patch_options.addOptionFileSource("type_a", typeAPatch);
-    //patch_options.addOptionFileSource("testpatch", testpatchPatch);
+    patch_options.addOptionFileSource("type_intel_buffer", typeIntelBufferPatch);
+    patch_options.addOptionFileSource("testpatch", testpatchPatch);
 
     // Tool
     const exe = b.addExecutable("batterypatcher", "src/main.zig");
