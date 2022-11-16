@@ -27,7 +27,7 @@ fn addPatch(b: *std.build.Builder, patcher_options: *std.build.OptionsStep, name
 }
 
 pub fn build(b: *std.build.Builder) !void {
-    b.setPreferredReleaseMode(.Debug);
+    b.setPreferredReleaseMode(.ReleaseSafe);
     const target = b.standardTargetOptions(.{});
     const mode = b.standardReleaseOptions();
 
@@ -39,16 +39,23 @@ pub fn build(b: *std.build.Builder) !void {
         .saveSize = 0x00010000,
         .originalEntry = 0x080000C0,
     });
-    //const sramtoromPatch = addPatch(b, "sramtorom", "src/patches/sramtorom.zig");
-    //const intowramPatch = addPatch(b, "intowram", "src/patches/intowram.zig");
+    addPatch(b, patch_options, "sramtorom", "src/patches/sramtorom.zig", .{});
+    addPatch(b, patch_options, "intowram", "src/patches/intowram.zig", .{
+        .WRAMExecutionBlock = 0x0203fc10,
+        .BlockStart = 0x08880000,
+        .BlockLength = 320,
+    });
 
-    //const detect1Patch = addPatch(b, "detectflashchip1", "src/patches/detectflashchip1.zig");
-    //const detect2Patch = addPatch(b, "detectflashchip2", "src/patches/detectflashchip2.zig");
-    //const detect3Patch = addPatch(b, "detectflashchip3", "src/patches/detectflashchip3.zig");
+    addPatch(b, patch_options, "detectflashchip1", "src/patches/detectflashchip1.zig", .{});
+    addPatch(b, patch_options, "detectflashchip2", "src/patches/detectflashchip2.zig", .{});
+    addPatch(b, patch_options, "detectflashchip3", "src/patches/detectflashchip3.zig", .{});
 
-    //const typeIntelBufferPatch = addPatch(b, "type_intel_buffer", "src/patches/type_intel_buffer.zig");
-
-    //addPatch(b, patch_options, "testpatch", "src/patches/testpatch.zig");
+    addPatch(b, patch_options, "type_intel_buffer", "src/patches/type_intel_buffer.zig", .{});
+    addPatch(b, patch_options, "testpatch", "src/patches/testpatch.zig", .{
+        .FlashID_A_Method = 0x08840000,
+        .FlashID_B_Method = 0x08860000,
+        .FlashID_Unknown_Method = 0x08880000,
+    });
 
     // Tool
     const exe = b.addExecutable("batterypatcher", "src/main.zig");
