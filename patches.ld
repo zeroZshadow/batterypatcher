@@ -5,7 +5,7 @@ MEMORY {
 ENTRY(__text_start)
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
+OUTPUT_ARCH(armv4t)
 
 __text_start = ORIGIN(rom);
 
@@ -15,17 +15,23 @@ SECTIONS
 
     .text :
     {
+        . = ALIGN(4);
         KEEP(*(.text))
-        . ALIGN(4);
+    } >rom
+
+    .data : {
+        . = ALIGN(4);
+        KEEP(*(.data*))
     } >rom
 
     .rodata : {
-        KEEP(*(.rodata*))
         . = ALIGN(4);
+        KEEP(*(.rodata*))
     } >rom
 
     /DISCARD/ : {
         *(.ARM.exidx*)
+        *(.data.rel.ro)
     }
 
     __text_end = .;

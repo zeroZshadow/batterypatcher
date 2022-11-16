@@ -1,5 +1,5 @@
 const std = @import("std");
-const copyromtosram = @import("patches/copyromtosram.zig");
+const patches = @import("patches");
 
 pub fn main() anyerror!void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -24,11 +24,10 @@ pub fn main() anyerror!void {
     const codeOffset = 0x08800000 - baseAddress;
 
     // Patch game entry point to jump to patch location
-    const originalEntryOffset = patchEntryJump(codeOffset, romBuffer);
+    patchEntryJump(romBuffer, codeOffset);
 
     // Write SRAM patch
-    const patchValues = .{ .originalEntry = baseAddress + originalEntryOffset, .saveSize = 65536, .savelocation = 0x08840000 };
-    copyromtosram.writePatch(patchValues, romBuffer, codeOffset);
+    writePatch(romBuffer, "copyromtosram", codeOffset);
 
     // Write Game entry/exit patch
 
@@ -39,13 +38,15 @@ pub fn main() anyerror!void {
     try romOutputFile.writeAll(romBuffer);
 }
 
-fn patchEntryJump(jumpOffset: u32, rom: []u8) u32 {
-    // Read and calculate original jump offset
-    const originalOffset = (std.mem.readIntSlice(u32, rom[0..4], .Little) & 0x00FFFFFF) * 4 + 8;
-
+fn patchEntryJump(rom: []u8, jumpOffset: u32) void {
     // Calculate and write new offset jump for patch
     const op = (((jumpOffset - 8) / 4) & 0x00FFFFFF) | 0xEA000000;
     std.mem.writeIntSlice(u32, rom[0..4], op, .Little);
+}
 
-    return originalOffset;
+fn writePatch(rom: []u8, comptime patchName: []const u8, writeOffset: u32) void {
+    const patch = @embedFile(@field(patches, patchName));
+
+    std.log.debug("Applying patch \"{s}\" at offset {} patch.len {}", .{ patchName, writeOffset, patch.len });
+    std.mem.copy(u8, rom[writeOffset .. writeOffset + patch.len], patch);
 }
