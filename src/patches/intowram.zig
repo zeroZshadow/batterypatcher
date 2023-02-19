@@ -33,14 +33,14 @@ export fn intowram() callconv(.Naked) noreturn {
     //     \\.word 0xDEADBEEF
     // );
 
-    const WRAMExecutionBlock = @intToPtr([*]align(2) volatile u16, variables.WRAMExecutionBlock);
-    const BlockStart = @intToPtr([*]align(2) volatile u16, variables.BlockStart);
+    const WRAMExecutionBlock = @intToPtr([*]align(4) volatile u32, variables.WRAMExecutionBlock);
+    const BlockStart = @intToPtr([*]align(4) volatile u32, variables.BlockStart);
 
-    var i: usize = 0;
+    var i: u32 = 0;
     while (true) {
         WRAMExecutionBlock[i] = BlockStart[i];
-        i += 1;
-        if (i == variables.BlockLength) {
+        i += @sizeOf(u32);
+        if (i >= variables.BlockLength) {
             break;
         }
     }

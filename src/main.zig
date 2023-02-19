@@ -27,7 +27,7 @@ pub fn main() anyerror!void {
     patchEntryJump(romBuffer, codeOffset);
 
     // Write SRAM patch
-    writePatch(romBuffer, "copyromtosram", codeOffset);
+    writePatch(romBuffer, "intowram", codeOffset);
 
     // Write Game entry/exit patch
 
@@ -45,7 +45,7 @@ fn patchEntryJump(rom: []u8, jumpOffset: u32) void {
 }
 
 fn writePatch(rom: []u8, comptime patchName: []const u8, writeOffset: u32) void {
-    const patch = @embedFile(@field(patches, patchName));
+    const patch = @embedFile("../zig-out/patches/intowram.bin"); //@field(patches, patchName));
 
     std.log.debug("Applying patch \"{s}\" at offset {} patch.len {}", .{ patchName, writeOffset, patch.len });
     std.mem.copy(u8, rom[writeOffset .. writeOffset + patch.len], patch);
